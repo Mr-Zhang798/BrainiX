@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI工具导航 - 左侧分类版</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #2d2d2d; /* 深灰主色 */
+        --secondary: #ff6b6b; /* 强调色 */
+        --sidebar-width: 280px;
+        --header-height: 50px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, system-ui;
+        background: #f5f5f5;
+      }
+
+      /* 侧边栏样式 */
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: var(--sidebar-width);
+        height: 100vh;
+        background: var(--primary);
+        color: white;
+        padding: 20px 15px;
+        overflow-y: auto;
+        transition: transform 0.3s ease;
+      }
+
+      .logo {
+        font-size: 24px;
+        margin-bottom: 40px;
+        padding-left: 15px;
+      }
+
+      .logo span {
+        color: var(--secondary);
+      }
+
+      /* 分类导航 */
+      .nav-group {
+        margin-bottom: 30px;
+      }
+
+      .nav-title {
+        font-size: 14px;
+        color: #999;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+
+      .nav-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .nav-item i {
+        width: 25px;
+        margin-right: 12px;
+        font-size: 16px;
+      }
+
+      .nav-item.active {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      /* 主内容区 */
+      .main-content {
+        margin-left: var(--sidebar-width);
+        padding: 40px;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
+      }
+
+      /* 搜索框 */
+      .search-box {
+        margin-bottom: 40px;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .search-box input {
+        width: 100%;
+        padding: 15px;
+        border-radius: 30px;
+        border: 2px solid #eee;
+      }
+
+      /* 工具网格 */
+      .tool-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 20px;
+      }
+
+      .tool-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        position: relative;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .tool-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .tool-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--secondary);
+        border-radius: 12px 12px 0 0;
+      }
+
+      .tool-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .tool-icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 15px;
+      }
+
+      .tool-title {
+        font-size: 18px;
+        color: #333;
+      }
+
+      .tool-desc {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .tool-link {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 20px;
+        background: var(--secondary);
+        color: white;
+        border-radius: 20px;
+        text-decoration: none;
+        font-size: 14px;
+        transition: background 0.3s;
+      }
+
+      .tool-link:hover {
+        background: #ff5252;
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+
+        .main-content {
+          margin-left: 0;
+          padding: 20px;
+        }
+
+        .menu-toggle {
+          display: block;
+          position: fixed;
+          top: 20px;
+          left: 20px;
+          z-index: 1000;
+        }
+
+        .tool-grid {
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 侧边栏 -->
+    <nav class="sidebar">
+      <div class="logo"><span>AI</span> BrainiX</div>
+
+      <div class="nav-group">
+        <div class="nav-title">分类导航</div>
+        <div class="nav-item active" data-filter="all">
+          <i class="fas fa-th-large"></i>全部工具
+        </div>
+        <div class="nav-item" data-filter="domestic">
+          <i class="fas fa-flag"></i>国产工具
+        </div>
+        <div class="nav-item" data-filter="international">
+          <i class="fas fa-globe"></i>国际工具
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-title">功能分类</div>
+        <div class="nav-item" data-filter="writing">
+          <i class="fas fa-pen"></i>文案创作
+        </div>
+        <div class="nav-item" data-filter="image">
+          <i class="fas fa-palette"></i>图像生成
+        </div>
+        <div class="nav-item" data-filter="video">
+          <i class="fas fa-video"></i>视频制作
+        </div>
+        <div class="nav-item" data-filter="code">
+          <i class="fas fa-code"></i>开发工具
+        </div>
+      </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="🔍 搜索工具名称或关键词..."
+        />
+      </div>
+
+      <div class="tool-grid" id="toolContainer">
+        <!-- 豆包AI -->
+        <div class="tool-card" data-category="domestic writing">
+          <div class="tool-header">
+            <img src="img\db.jpg" class="tool-icon" alt="豆包AI" />
+            <h3 class="tool-title">豆包AI</h3>
+          </div>
+          <p class="tool-desc">
+            智能对话与多模态创作工具，支持文本生成与数据分析
+          </p>
+          <a
+            href="https://www.doubao.com/chat/?from_logout=1"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- DeepSeek -->
+        <div class="tool-card" data-category="domestic writing">
+          <div class="tool-header">
+            <img src="img\deepseek.jpg" class="tool-icon" alt="DeepSeek" />
+            <h3 class="tool-title">DeepSeek</h3>
+          </div>
+          <p class="tool-desc">强大的搜索与数据挖掘工具</p>
+          <a href="https://www.deepseek.com/" class="tool-link" target="_blank">
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- 文心一言 -->
+        <div class="tool-card" data-category="domestic writing">
+          <div class="tool-header">
+            <img src="img\wxyy.jpg" class="tool-icon" alt="文心一言" />
+            <h3 class="tool-title">文心一言</h3>
+          </div>
+          <p class="tool-desc">百度推出的智能对话生成工具</p>
+          <a href="https://yiyan.baidu.com/" class="tool-link" target="_blank">
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- 即梦AI -->
+        <div class="tool-card" data-category="domestic writing">
+          <div class="tool-header">
+            <img src="img\jm.jpg" class="tool-icon" alt="即梦AI" />
+            <h3 class="tool-title">即梦AI</h3>
+          </div>
+          <p class="tool-desc">集成图文创作与内容生成的多功能工具</p>
+          <a
+            href="https://jimeng.jianying.com/ai-tool/home/?utm_medium=bingpc&utm_source=bing&msclkid=9e33356c3ca61b4618ea52d68cc3fd76"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- Kimi -->
+        <div class="tool-card" data-category="domestic writing">
+          <div class="tool-header">
+            <img src="img\kimi.jpg" class="tool-icon" alt="Kimi" />
+            <h3 class="tool-title">Kimi</h3>
+          </div>
+          <p class="tool-desc">智能写作与创意生成工具</p>
+          <a href="https://kimi.moonshot.cn/" class="tool-link" target="_blank">
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- 可灵AI -->
+        <div class="tool-card" data-category="domestic writing">
+          <div class="tool-header">
+            <img src="img\kl.jpg" class="tool-icon" alt="可灵AI" />
+            <h3 class="tool-title">可灵AI</h3>
+          </div>
+          <p class="tool-desc">AI写作工具，帮助用户提高创作效率</p>
+          <a
+            href="https://klingai.kuaishou.com/"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- 通义千问 -->
+        <div class="tool-card" data-category="domestic writing">
+          <div class="tool-header">
+            <img src="img\tyqw.jpg" class="tool-icon" alt="通义千问" />
+            <h3 class="tool-title">通义千问</h3>
+          </div>
+          <p class="tool-desc">阿里云推出的AI问答与创作工具</p>
+          <a
+            href="https://tongyi.aliyun.com/"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- 讯飞听见 -->
+        <div class="tool-card" data-category="domestic writing">
+          <div class="tool-header">
+            <img src="img\xftj.jpg" class="tool-icon" alt="盘古" />
+            <h3 class="tool-title">讯飞听见(需下载)</h3>
+          </div>
+          <p class="tool-desc">
+            日常办公会议、授课演讲、媒体采访、心得写作等多场景下的录音转文字及翻译
+          </p>
+          <a
+            href="https://www.iflyrec.com/zhuanwenzi.html?from=tjbingpz"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- 星火 -->
+        <div class="tool-card" data-category="domestic writing">
+          <div class="tool-header">
+            <img src="img\xh.jpg" class="tool-icon" alt="星火" />
+            <h3 class="tool-title">星火</h3>
+          </div>
+          <p class="tool-desc">讯飞提供的AI创作工具，支持语音与文字处理</p>
+          <a
+            href="https://xinghuo.xfyun.cn/sparkapi?ch=bytg-api01&msclkid=b92f3f0dbfea10ae27b358b70eb1bf1f"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- AIAPP -->
+        <div class="tool-card" data-category="domestic writing">
+          <div class="tool-header">
+            <img src="img\aippt.jpg" class="tool-icon" alt="AIAPP" />
+            <h3 class="tool-title">AIAPP</h3>
+          </div>
+          <p class="tool-desc">一站式AI工具集合，提升工作效率</p>
+          <a
+            href="https://www.aippt.cn/landingpage/sem/?utm_type=SEM&utm_source=biying1_sem&utm_page=aippt&utm_plan=sd1Aic4&utm_unit=aic3&utm_keyword=40447511&account_id=151844928&customer_id=253970148&msclkid=d96c2d9719081fbd507d4a2da8b8807c"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+        <!--标小智-->
+        <div class="tool-card" data-category="domestic writing">
+          <div class="tool-header">
+            <img src="img\bxz.jpg" class="tool-icon" alt="AIAPP" />
+            <h3 class="tool-title">标小智</h3>
+          </div>
+          <p class="tool-desc">一键生成Logo</p>
+          <a
+            href="https://logo.logosq.cn/home?source=logo-yq-pc-bing1&keyword=%E6%A0%87%E5%B0%8F%20%E6%99%BA&clickid=c3a3f986b70910c37b7f9e3c75d24ce5&msclkid=c3a3f986b70910c37b7f9e3c75d24ce5&utm_source=bing&utm_medium=cpc&utm_campaign=logo-yq-pc-bing1-1&utm_term=%E6%A0%87%E5%B0%8F%20%E6%99%BA&utm_content=Logo9"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+        <!-- 天工 -->
+        <div class="tool-card" data-category="domestic writing">
+          <div class="tool-header">
+            <img src="img\tiangong.jpg" class="tool-icon" alt="星火" />
+            <h3 class="tool-title">天工AI</h3>
+          </div>
+          <p class="tool-desc">
+            一款支持搜索,写作,对话,文档分析,绘画,PPT制作的全能型AI助手
+          </p>
+          <a href="https://www.tiangong.cn/" class="tool-link" target="_blank">
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- 以下是国际工具 -->
+
+        <!-- ChatGPT -->
+        <div class="tool-card" data-category="international writing">
+          <div class="tool-header">
+            <img src="img\chatgpt.png" class="tool-icon" alt="ChatGPT" />
+            <h3 class="tool-title">ChatGPT</h3>
+          </div>
+          <p class="tool-desc">智能对话助手，支持丰富的对话生成</p>
+          <a
+            href="https://chat18.aichatosai.com/"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- DALL·E 3 -->
+        <div class="tool-card" data-category="international image">
+          <div class="tool-header">
+            <img src="img\dall.png" class="tool-icon" alt="DALL·E 3" />
+            <h3 class="tool-title">DALL·E 3</h3>
+          </div>
+          <p class="tool-desc">OpenAI的图像生成工具，支持文本转图像</p>
+          <a href="https://dalle3.org/zh-CN" class="tool-link" target="_blank">
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- Runway -->
+        <div class="tool-card" data-category="international video">
+          <div class="tool-header">
+            <img src="img\runway.png" class="tool-icon" alt="Runway" />
+            <h3 class="tool-title">Runway</h3>
+          </div>
+          <p class="tool-desc">视频编辑与创作工具，适用于多种平台</p>
+          <a
+            href="https://qihuiguan.cn/?from=BingRW&msclkid=e4c124380b30141466c04382b996b313#/"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- DeepL -->
+        <div class="tool-card" data-category="international writing">
+          <div class="tool-header">
+            <img src="img\deepl.jpg" class="tool-icon" alt="DeepL" />
+            <h3 class="tool-title">DeepL</h3>
+          </div>
+          <p class="tool-desc">翻译工具，支持多种语言对照</p>
+          <a
+            href="https://www.deepl.com/zh/translator/l/en/en"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- Synthesia -->
+        <div class="tool-card" data-category="international video">
+          <div class="tool-header">
+            <img src="img\synthrsia.png" class="tool-icon" alt="Synthesia" />
+            <h3 class="tool-title">Synthesia</h3>
+          </div>
+          <p class="tool-desc">AI视频生成工具，支持虚拟人物视频制作</p>
+          <a
+            href="https://asspcz.wyyqh.cn/h5/sora/i.html?self_os=1&ad_id=0&platform_id=4&app_id=1121&agency_id=71&channel_id=18868&bd_vid=10078408007194420271"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- Jasper -->
+        <div class="tool-card" data-category="international writing">
+          <div class="tool-header">
+            <img src="img\jasper.jpg" class="tool-icon" alt="Jasper" />
+            <h3 class="tool-title">Jasper</h3>
+          </div>
+          <p class="tool-desc">AI内容创作工具，适用于文案与写作</p>
+          <a href="https://www.jasper.ai/" class="tool-link" target="_blank">
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- MidJourney -->
+        <div class="tool-card" data-category="international image">
+          <div class="tool-header">
+            <img src="img\midjourney.jpg" class="tool-icon" alt="MidJourney" />
+            <h3 class="tool-title">MidJourney</h3>
+          </div>
+          <p class="tool-desc">AI图像生成平台，基于文本描述生成艺术图像</p>
+          <a
+            href="https://bing.midjourny.cn/?from=MJbing01&msclkid=fbee19951b0f1e0f56517e2fa8a28377"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+
+        <!-- Lumen5 -->
+        <div class="tool-card" data-category="international video">
+          <div class="tool-header">
+            <img src="img\lumen5.png" class="tool-icon" alt="Lumen5" />
+            <h3 class="tool-title">Lumen5</h3>
+          </div>
+          <p class="tool-desc">AI视频生成工具，将文字转化为短视频</p>
+          <a
+            href="https://wenku.baidu.com/ndlaunch/browse/chat?fr=launch_ad&utm_source=360ss-WD&utm_medium=cpc&keyword=lumen5%E4%B8%AD%E6%96%87%E7%89%88&utm_account=SS-360tg09&e_creative=%7Bcreative%7D&e_keywordid=62481943983&qhclickid=597f9a9ab6d1c7f0"
+            class="tool-link"
+            target="_blank"
+          >
+            立即使用
+            <i class="fas fa-external-link-alt" style="margin-left: 8px"></i>
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const navItems = document.querySelectorAll(".nav-item");
+      const toolCards = document.querySelectorAll(".tool-card");
+
+      // 侧边栏导航交互，切换分类
+      navItems.forEach((item) => {
+        item.addEventListener("click", function () {
+          // 移除所有导航项的激活状态
+          navItems.forEach((n) => n.classList.remove("active"));
+          // 给当前点击的分类添加激活状态
+          this.classList.add("active");
+
+          // 获取过滤条件
+          const filter = this.dataset.filter;
+
+          // 根据过滤条件筛选工具
+          filterTools(filter);
+        });
+      });
+
+      // 筛选工具
+      function filterTools(filter) {
+        toolCards.forEach((card) => {
+          // 获取工具的分类
+          const categories = card.dataset.category.split(" ");
+          // 如果该工具符合当前选择的过滤条件，则显示，否则隐藏
+          if (filter === "all" || categories.includes(filter)) {
+            card.style.display = "block";
+          } else {
+            card.style.display = "none";
+          }
+        });
+      }
+
+      // 搜索功能
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function () {
+          const searchTerm = this.value.toLowerCase();
+          toolCards.forEach((card) => {
+            const title = card
+              .querySelector(".tool-title")
+              .textContent.toLowerCase();
+            const desc = card
+              .querySelector(".tool-desc")
+              .textContent.toLowerCase();
+            if (title.includes(searchTerm) || desc.includes(searchTerm)) {
+              card.style.display = "block";
+            } else {
+              card.style.display = "none";
+            }
+          });
+        });
+
+      // 移动端菜单切换
+      const menuToggle = document.createElement("div");
+      menuToggle.className = "menu-toggle";
+      menuToggle.innerHTML =
+        '<i class="fas fa-bars" style="font-size: 24px; color: var(--primary);"></i>';
+      document.body.appendChild(menuToggle);
+
+      menuToggle.addEventListener("click", () => {
+        document.querySelector(".sidebar").style.transform = "translateX(0)";
+      });
+
+      // 点击外部关闭侧边栏
+      document.addEventListener("click", (e) => {
+        if (
+          !e.target.closest(".sidebar") &&
+          !e.target.closest(".menu-toggle")
+        ) {
+          document.querySelector(".sidebar").style.transform =
+            "translateX(-100%)";
+        }
+      });
+    </script>
+  </body>
+</html>
